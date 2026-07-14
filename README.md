@@ -1,6 +1,6 @@
 # MyLISP for Sinclair QL
 
-MyLISP is a LISP-1 interpreter designed specifically to run on Sinclair QL computers and compatible emulators (with 640kb RAM). 
+MyLISP is a LISP-1 interpreter designed specifically to run on Sinclair QL computers and compatible emulators (requires 640KB RAM minimum). 
 
 This repository contains the executable binaries for the interpreter, reference manuals, example programs, and the necessary files to translate the interface into other languages.
 
@@ -31,5 +31,6 @@ If you want MyLISP to be available in your native language, you can contribute b
 
 ## 📜 License
 
-* MyLISP binaries and documentation are Freeware. Commercial use, resale, or monetization of any kind is strictly prohibited.
+* MyLISP binaries and documentation are Freeware. You may use them for any purpose, including commercial projects.
+  However, the resale, repackaging, or direct monetization of the MyLISP software itself is strictly prohibited.
 * The scripts and programs inside the `/examples` folder are in the public domain; you may use and modify them as you see fit.
