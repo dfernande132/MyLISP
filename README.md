@@ -1,8 +1,8 @@
-# MyLISP for Sinclair QL
-
-MyLISP is a LISP-1 interpreter designed specifically to run on Sinclair QL computers and compatible emulators. 
+# MyLISP for Sinclair QL (v1.0)
 
 ![MyLISP Screenshot](SCREENSHOT/mylisp.png)
+
+MyLISP is a LISP-1 interpreter designed specifically to run on Sinclair QL computers and compatible emulators. 
 
 ## 💻 System Requirements & Quick Start
 
@@ -19,7 +19,7 @@ The repository is organized into the following directories:
 * `/examples`: A collection of LISP programs to run on the interpreter.
 * `/lang-templates`: Contains the base text files (`msg_EN.pas` and `msg_ES.pas`) required for localization.
 
-*(Note: The bootable Microdrive image containing the full environment is located in the root of the repository or its designated folder).*
+*(Note: The bootable Microdrive image containing the full environment is located in the root of the repository).*
 
 ## 💡 Included Examples
 
@@ -46,7 +46,13 @@ If you want MyLISP to be available in your native language, you can contribute b
 4. Open an **Issue** in this repository and attach your file, or submit a **Pull Request** adding it to the `/lang-templates` folder.
 5. Once reviewed, I will compile a new MyLISP binary with your translation, create a new language folder (e.g., `/FR`), and credit your work in this README.
 
+## 📝 Changelog
+
+* **v1.0 (Initial Release):** First public version. Includes interpreter core, base English/Spanish localizations, reference manuals, and foundational example scripts.
+
 ## 📜 License
 
 * MyLISP binaries and documentation are Freeware. You may use them for any purpose, including commercial projects. However, the resale, repackaging, or direct monetization of the MyLISP software itself is strictly prohibited.
 * The scripts and programs inside the `/examples` folder are in the public domain; you may use and modify them as you see fit.
+
+*Disclaimer: This software was compiled using Prospero Pascal. The included `.PRL` run-time library is distributed solely to allow the execution of this program, following standard compiler runtime distribution practices. Prospero Pascal remains the copyright of Prospero Software / its respective owners.*
