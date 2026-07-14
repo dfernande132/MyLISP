@@ -2,7 +2,7 @@
 
 MyLISP is a LISP-1 interpreter designed specifically to run on Sinclair QL computers and compatible emulators. 
 
-![MyLISP Screenshot](screenshot/mylisp.png)
+![MyLISP Screenshot](SCREENSHOT/mylisp.png)
 
 ## 💻 System Requirements & Quick Start
 
