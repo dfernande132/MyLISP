@@ -1,10 +1,14 @@
 # MyLISP for Sinclair QL
 
-MyLISP is a LISP-1 interpreter designed specifically to run on Sinclair QL computers and compatible emulators (requires 640KB RAM minimum). 
+MyLISP is a LISP-1 interpreter designed specifically to run on Sinclair QL computers and compatible emulators. 
 
-![MyLISP Screenshot](SCREENSHOT/mylisp.png)
+![MyLISP Screenshot](screenshot/mylisp.png)
 
-This repository contains the executable binaries for the interpreter, reference manuals, example programs, and the necessary files to translate the interface into other languages.
+## 💻 System Requirements & Quick Start
+
+* **Memory:** Requires a minimum of 640KB RAM.
+* **Dependencies:** Running the standalone executables requires the Prospero Pascal run-time library (`PRL` file) to be present on your system.
+* **Ready-to-run Microdrive:** For maximum convenience, I have included a ready-to-use Microdrive image (containing the executable, the required `PRL` file, and default configurations). You can mount this image in your emulator or real hardware and run the interpreter directly without manually gathering dependencies.
 
 ## 📂 Repository Structure
 
@@ -14,6 +18,8 @@ The repository is organized into the following directories:
 * `/ES`: Contains the MyLISP executable and the reference manual in Spanish.
 * `/examples`: A collection of LISP programs to run on the interpreter.
 * `/lang-templates`: Contains the base text files (`msg_EN.pas` and `msg_ES.pas`) required for localization.
+
+*(Note: The bootable Microdrive image containing the full environment is located in the root of the repository or its designated folder).*
 
 ## 💡 Included Examples
 
