@@ -10,8 +10,17 @@ The repository is organized into the following directories:
 
 * `/EN`: Contains the MyLISP executable and the reference manual in English.
 * `/ES`: Contains the MyLISP executable and the reference manual in Spanish.
-* `/examples`: A collection of LISP programs to run on the interpreter (e.g., algorithms, proofs of concept, and math scripts).
+* `/examples`: A collection of LISP programs to run on the interpreter.
 * `/lang-templates`: Contains the base text files (`msg_EN.pas` and `msg_ES.pas`) required for localization.
+
+## 💡 Included Examples
+
+Inside the `/examples` folder, you will find the following scripts to test the capabilities of the MyLISP interpreter:
+
+* **`BASIC`**: A comprehensive test suite demonstrating the environment's fundamentals. It covers data types, list manipulation, flow control, classical recursive functions (like Fibonacci and Factorial), and controlled error handling to show the REPL's resilience.
+* **`SORT`**: An implementation of the Selection Sort algorithm using recursive list processing and custom minimum-value extraction functions.
+* **`DERIVA`**: A classic Lisp demonstration of symbolic computation. It acts as a symbolic differentiator, parsing mathematical expressions as trees and applying derivation rules alongside basic algebraic simplifications.
+* **`ORDEN`**: A demonstration of functional programming concepts. It defines the higher-order paradigms `MAP`, `FILTER`, and `REDUCE` from scratch, applying them to custom predicates and arithmetic operations.
 
 ## 🚀 Usage and Distribution
 
@@ -31,6 +40,5 @@ If you want MyLISP to be available in your native language, you can contribute b
 
 ## 📜 License
 
-* MyLISP binaries and documentation are Freeware. You may use them for any purpose, including commercial projects.
-  However, the resale, repackaging, or direct monetization of the MyLISP software itself is strictly prohibited.
+* MyLISP binaries and documentation are Freeware. You may use them for any purpose, including commercial projects. However, the resale, repackaging, or direct monetization of the MyLISP software itself is strictly prohibited.
 * The scripts and programs inside the `/examples` folder are in the public domain; you may use and modify them as you see fit.
