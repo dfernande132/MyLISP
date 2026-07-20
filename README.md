@@ -8,6 +8,12 @@ MyLISP is a LISP-1 interpreter designed specifically to run on Sinclair QL compu
 
 * **Memory:** Requires a minimum of 640KB RAM.
 * **Dependencies:** Running the standalone executables requires the Prospero Pascal run-time library (`PRL` file) to be present on your system (a copy of PRL file is available in the binaries folders).
+```basic
+10 REM BOOT program for PRL
+20 base = RESPR(16314)
+30 LBYTES mdv1_PRL,base
+40 CALL base+8
+```
 * **Ready-to-run Microdrive:** For maximum convenience, I have included a ready-to-use Microdrive image (containing the executable, the required `PRL` file, and default configurations). You can mount this image in your emulator or real hardware and run the interpreter directly without manually gathering dependencies.
 
 ## 📂 Repository Structure
