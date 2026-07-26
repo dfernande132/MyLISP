@@ -4,6 +4,8 @@
 
 Este repositorio contiene una implementación clásica del juego del Tres en Raya (Tic-Tac-Toe) escrita en MyLISP, diseñada para ejecutarse en entornos retro como el Sinclair QL o el ZX Spectrum Next .
 
+![TICTACTOE Screenshot](tictactoe2.png)
+
 El juego enfrenta al usuario (Jugador 1, `X`) contra la máquina (Jugador 2, `O`). La IA no utiliza números aleatorios; implementa un árbol de decisión determinista basado en prioridades estratégicas absolutas .
 
 ## 🕹️ Cómo jugar
@@ -101,4 +103,3 @@ El código está estructurado en pequeños bloques de una sola responsabilidad p
 - `(mover p)` / `(mover2 p)`: Entrada principal del usuario. Valida y delega .  
 - `(turnohum p)` / `(turnh2)`: Aplica el movimiento del usuario y comprueba condición de victoria antes de pasar el turno [cite: 2].
 - `(turnomaq)` / `(turnm2)`: Aplica el movimiento de la IA y verifica estado de victoria [cite: 2].
-
