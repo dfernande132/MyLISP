@@ -1,0 +1,302 @@
+; ============================================
+; TIC-TAC-TOE vs THE MACHINE - for MyLISP
+; made with CLAUDE AI
+; You are player 1 (X), the machine is 2 (O).
+; No random numbers: the machine plays with
+; fixed strategy (win > block > center >
+; corner > edge).
+; positions:   1 2 3
+;              4 5 6
+;              7 8 9
+; Load with: (load "aitictac")
+;
+; How to play:
+; (move p)    -> you play at position p,
+;                the machine answers on its own
+; (reset)     -> start over
+; ============================================
+
+; --- element at position k (starts at 1) ---
+(defun elem (k lst)
+  (if (= k 1)
+      (car lst)
+      (elem (- k 1) (cdr lst))))
+
+; --- returns a new board with v at position k ---
+(defun pon (k v lst)
+  (if (= k 1)
+      (cons v (cdr lst))
+      (cons (car lst) (pon (- k 1) v (cdr lst)))))
+
+; --- symbol to show for each value ---
+(defun simb (v)
+  (cond
+    ((= v 1) "X")
+    ((= v 2) "O")
+    (t "-")))
+
+; --- prints a row of 3 (positions p,p+1,p+2) ---
+(defun filatr (lst p)
+  (progn
+    (display (simb (elem p lst)))
+    (display " ")
+    (display (simb (elem (+ p 1) lst)))
+    (display " ")
+    (display (simb (elem (+ p 2) lst)))
+    (newline)))
+
+; --- prints the whole board ---
+(defun tabla (lst)
+  (progn
+    (filatr lst 1)
+    (filatr lst 4)
+    (filatr lst 7)))
+
+; --- 3 equal, non-empty positions in a row? ---
+(defun linea3 (lst a b c)
+  (and (= (elem a lst) (elem b lst))
+       (and (= (elem b lst) (elem c lst))
+            (not (= (elem a lst) 0)))))
+
+; --- version that takes a triple (list of 3) ---
+(defun linea3t (lst tri)
+  (linea3 lst (car tri) (car (cdr tri)) (car (cdr (cdr tri)))))
+
+; --- the 8 possible winning lines ---
+(defun lineas ()
+  '((1 2 3) (4 5 6) (7 8 9)
+    (1 4 7) (2 5 8) (3 6 9)
+    (1 5 9) (3 5 7)))
+
+; --- scans the lines looking for a winner ---
+(defun chklin (lst lns)
+  (if (atom lns)
+      nil
+      (if (linea3t lst (car lns))
+          t
+          (chklin lst (cdr lns)))))
+
+; --- is there a winner on the board? ---
+(defun gano (lst)
+  (chklin lst (lineas)))
+
+; --- is the board full? (for a tie) ---
+(defun lleno (lst)
+  (if (atom lst)
+      t
+      (if (= (car lst) 0)
+          nil
+          (lleno (cdr lst)))))
+
+; --- is cell p already taken? ---
+(defun ocupada (lst p)
+  (not (= (elem p lst) 0)))
+
+(defun libre (lst p)
+  (not (ocupada lst p)))
+
+; --- checks a line: if 2 belong to j and 1 is empty, return it ---
+(defun chkfila (lst j a b c)
+  (cond
+    ((and (= (elem a lst) j) (and (= (elem b lst) j) (= (elem c lst) 0))) c)
+    ((and (= (elem a lst) j) (and (= (elem c lst) j) (= (elem b lst) 0))) b)
+    ((and (= (elem b lst) j) (and (= (elem c lst) j) (= (elem a lst) 0))) a)
+    (t 0)))
+
+; --- scans the lines looking for a move for j ---
+(defun buscaf (lst j lns)
+  (if (atom lns)
+      0
+      (buscaf2 lst j lns)))
+
+(defun buscaf2 (lst j lns)
+  (let ((tri (car lns)))
+    (let ((r (chkfila lst j (car tri) (car (cdr tri)) (car (cdr (cdr tri))))))
+      (cond
+        ((not (= r 0)) r)
+        (t (buscaf lst j (cdr lns)))))))
+
+; --- position where the machine would win now (0 if none) ---
+(defun ganamov (lst)
+  (buscaf lst 2 (lineas)))
+
+; --- position where the human must be blocked ---
+(defun bloqmov (lst)
+  (buscaf lst 1 (lineas)))
+
+; --- first free position from a list of candidates ---
+(defun primlib (lst lns)
+  (if (atom lns)
+      0
+      (if (libre lst (car lns))
+          (car lns)
+          (primlib lst (cdr lns)))))
+
+(defun esquinas ()
+  '(1 3 7 9))
+
+(defun bordes ()
+  '(2 4 6 8))
+
+; --- the machine's strategy, in small steps ---
+(defun iamov4 (lst)
+  (let ((esq (primlib lst (esquinas))))
+    (cond
+      ((not (= esq 0)) esq)
+      (t (primlib lst (bordes))))))
+
+(defun iamov3 (lst)
+  (cond
+    ((libre lst 5) 5)
+    (t (iamov4 lst))))
+
+(defun iamov2 (lst)
+  (let ((bloq (bloqmov lst)))
+    (cond
+      ((not (= bloq 0)) bloq)
+      (t (iamov3 lst)))))
+
+(defun iamov (lst)
+  (let ((gana (ganamov lst)))
+    (cond
+      ((not (= gana 0)) gana)
+      (t (iamov2 lst)))))
+
+; --- messages, each in its own small function ---
+(defun msgocup (lst)
+  (progn
+    (display "Cell taken, pick another")
+    (newline)))
+
+(defun msggano (nuevo j)
+  (progn
+    (tabla nuevo)
+    (display "Player ")
+    (display j)
+    (display " WINS!")
+    (newline)))
+
+(defun msgemp (nuevo)
+  (progn
+    (tabla nuevo)
+    (display "TIE!")
+    (newline)))
+
+(defun msgturno ()
+  (progn
+    (tabla tablero)
+    (display "Your turn (X)")
+    (newline)))
+
+; --- empty board ---
+(defun inicio ()
+  '(0 0 0 0 0 0 0 0 0))
+
+; --- global variable with the current board ---
+(define tablero (inicio))
+
+; --- turn counter, to clean memory on its own ---
+(define turno 0)
+
+(defun incturno ()
+  (define turno (+ turno 1)))
+
+(defun tocalimp ()
+  (= (mod turno 2) 0))
+
+(defun limpiasi ()
+  (cond
+    ((tocalimp) (clean))
+    (t nil)))
+
+; --- restart the game ---
+(defun reset ()
+  (progn
+    (define tablero (inicio))
+    (define turno 0)))
+
+; --- the machine's turn, after yours ---
+(defun turnomaq ()
+  (progn
+    (define tablero (pon (iamov tablero) 2 tablero))
+    (turnm2)))
+
+(defun turnm2 ()
+  (cond
+    ((gano tablero) (msggano tablero 2))
+    ((lleno tablero) (msgemp tablero))
+    (t (msgturno))))
+
+; --- your turn, checks whether it stays with you or passes to the machine ---
+(defun turnh2 ()
+  (cond
+    ((gano tablero) (msggano tablero 1))
+    ((lleno tablero) (msgemp tablero))
+    (t (turnomaq))))
+
+(defun turnohum (p)
+  (progn
+    (define tablero (pon p 1 tablero))
+    (turnh2)))
+
+; --- main function: move position ---
+(defun move (p)
+  (cond
+    ((ocupada tablero p) (msgocup tablero))
+    (t (move2 p))))
+
+(defun move2 (p)
+  (progn
+    (incturno)
+    (turnohum p)
+    (limpiasi)))
+
+; --- welcome screen ---
+(defun titulo ()
+  (progn
+    (display "*********************")
+    (newline)
+    (display "*    TIC-TAC-TOE    *")
+    (newline)
+    (display "*   vs the machine  *")
+    (newline)
+    (display "*********************")
+    (newline)))
+
+(defun ayuda1 ()
+  (progn
+    (display "Board positions:")
+    (newline)
+    (display "  1 2 3")
+    (newline)))
+
+(defun ayuda2 ()
+  (progn
+    (display "  4 5 6")
+    (newline)
+    (display "  7 8 9")
+    (newline)))
+
+(defun ayuda3 ()
+  (progn
+    (display "Play: (move position)")
+    (newline)
+    (display "Example: (move 5)")
+    (newline)))
+
+(defun ayuda4 ()
+  (progn
+    (display "Restart: (reset)")
+    (newline)))
+
+(defun bienve ()
+  (progn
+    (titulo)
+    (ayuda1)
+    (ayuda2)
+    (ayuda3)
+    (ayuda4)
+    (tabla tablero)))
+
+; --- shows itself when the file loads ---
+(bienve)

@@ -1,0 +1,488 @@
+; ============================================
+; HANGMAN for MyLISP
+; Load with: (load "hangman")
+;
+; How to play, several ways:
+; you type the word yourself, or the machine
+; picks a predefined one, or you pick one.
+; Ex:
+; (secret '(s i n c l a i r))   -> someone sets the
+;   word, letters separated
+; Predefined by the machine, just:
+; (letter a)
+; picking a word EX:
+; (choose 'cat)
+; Then to play, propose a letter as before:
+; (letter a)
+;
+; ... repeat until you win or reach 6 misses
+; ============================================
+
+; --- generic utilities ---
+(defun elem (k lst)
+  (if (= k 1)
+      (car lst)
+      (elem (- k 1) (cdr lst))))
+
+(defun zeros (n)
+  (if (= n 0)
+      nil
+      (cons 0 (zeros (- n 1)))))
+
+(defun length (lst)
+  (if (atom lst)
+      0
+      (+ 1 (length (cdr lst)))))
+
+; --- "clear" screen by pushing with blank lines ---
+(defun blanks (n)
+  (if (= n 0)
+      nil
+      (progn
+        (newline)
+        (blanks (- n 1)))))
+
+(defun cls ()
+  (blanks 30))
+
+(defun has (x lst)
+  (if (atom lst)
+      nil
+      (if (equal (car lst) x)
+          t
+          (has x (cdr lst)))))
+
+; --- global game state ---
+(define word '())
+(define reveal '())
+(define errors 0)
+(define used '())
+(define categ "")
+
+; --- start a new game with this word ---
+(defun secret (wrd)
+  (progn
+    (define word wrd)
+    (define reveal (zeros (length wrd)))
+    (define errors 0)
+    (define used '())))
+
+; --- predefined words, already split into letters (symbols) ---
+(defun cat ()
+  '(c a t))
+
+(defun lion ()
+  '(l i o n))
+
+(defun dog ()
+  '(d o g))
+
+(defun lynx ()
+  '(l y n x))
+
+(defun bear ()
+  '(b e a r))
+
+(defun wolf ()
+  '(w o l f))
+
+(defun fox ()
+  '(f o x))
+
+(defun eagle ()
+  '(e a g l e))
+
+(defun cow ()
+  '(c o w))
+
+(defun duck ()
+  '(d u c k))
+
+(defun sheep ()
+  '(s h e e p))
+
+(defun goat ()
+  '(g o a t))
+
+; --- each letter equals itself, to write
+; (letter a) with no quote at all. NOTE: "t" is
+; left out on purpose -- T is the reserved
+; symbol for "true" in the whole interpreter,
+; so that letter still needs a quote: (letter 't)
+(define a 'a)
+(define b 'b)
+(define c 'c)
+(define e 'e)
+(define g 'g)
+(define i 'i)
+(define j 'j)
+(define l 'l)
+(define n 'n)
+(define o 'o)
+(define p 'p)
+(define r 'r)
+(define s 's)
+(define u 'u)
+(define v 'v)
+(define z 'z)
+(define d 'd)
+(define f 'f)
+(define h 'h)
+(define k 'k)
+(define m 'm)
+(define q 'q)
+(define w 'w)
+(define x 'x)
+(define y 'y)
+
+(defun msgbad ()
+  (progn
+    (display "Word not recognized")
+    (newline)))
+
+; --- the two categories, each text just once ---
+(defun wild ()
+  "wild animal")
+
+(defun tame ()
+  "farm animal")
+
+; --- starts the game and stores the category ---
+(defun pick2 (wrd ct)
+  (progn
+    (define categ ct)
+    (secret wrd)))
+
+; --- pick a predefined word by name ---
+(defun choose (nom)
+  (cond
+    ((equal nom 'cat) (pick2 (cat) (tame)))
+    ((equal nom 'lion) (pick2 (lion) (wild)))
+    ((equal nom 'dog) (pick2 (dog) (tame)))
+    ((equal nom 'lynx) (pick2 (lynx) (wild)))
+    ((equal nom 'bear) (pick2 (bear) (wild)))
+    ((equal nom 'wolf) (pick2 (wolf) (wild)))
+    (t (choose3 nom))))
+
+(defun choose3 (nom)
+  (cond
+    ((equal nom 'fox) (pick2 (fox) (wild)))
+    ((equal nom 'eagle) (pick2 (eagle) (wild)))
+    ((equal nom 'cow) (pick2 (cow) (tame)))
+    ((equal nom 'duck) (pick2 (duck) (tame)))
+    ((equal nom 'sheep) (pick2 (sheep) (tame)))
+    ((equal nom 'goat) (pick2 (goat) (tame)))
+    (t (msgbad))))
+
+; --- pseudo-random pick: internal counter that
+; changes each game, so it is not always the same ---
+(define rndcnt 0)
+
+(defun rand2 (i)
+  (cond
+    ((= i 0) (pick2 (cat) (tame)))
+    ((= i 1) (pick2 (lion) (wild)))
+    ((= i 2) (pick2 (dog) (tame)))
+    ((= i 3) (pick2 (lynx) (wild)))
+    ((= i 4) (pick2 (bear) (wild)))
+    ((= i 5) (pick2 (wolf) (wild)))
+    (t (rand3 i))))
+
+(defun rand3 (i)
+  (cond
+    ((= i 6) (pick2 (fox) (wild)))
+    ((= i 7) (pick2 (eagle) (wild)))
+    ((= i 8) (pick2 (cow) (tame)))
+    ((= i 9) (pick2 (duck) (tame)))
+    ((= i 10) (pick2 (sheep) (tame)))
+    (t (pick2 (goat) (tame)))))
+
+; --- shows the hint (category) ---
+(defun hint ()
+  (progn
+    (display "Hint: ")
+    (display categ)
+    (newline)))
+
+; --- hangman drawing, reusable parts ---
+(defun figtop ()
+  (progn
+    (display " +---+")
+    (newline)
+    (display " |   |")
+    (newline)))
+
+(defun figbot ()
+  (progn
+    (display "=========")
+    (newline)))
+
+; --- drawing lines, each text appears only ONCE ---
+(defun lnblank ()
+  (progn
+    (display "     |")
+    (newline)))
+
+(defun lnhead ()
+  (progn
+    (display " O   |")
+    (newline)))
+
+(defun lnbody ()
+  (progn
+    (display " |   |")
+    (newline)))
+
+(defun lnarm1 ()
+  (progn
+    (display "/|   |")
+    (newline)))
+
+(defun lnarm2 ()
+  (progn
+    (display "/|\  |")
+    (newline)))
+
+(defun lnleg1 ()
+  (progn
+    (display "/    |")
+    (newline)))
+
+(defun lnleg2 ()
+  (progn
+    (display "/ \  |")
+    (newline)))
+
+; --- one stage of the drawing, built from the lines above ---
+(defun fig0 ()
+  (progn
+    (figtop)
+    (lnblank)
+    (lnblank)
+    (lnblank)
+    (figbot)))
+
+(defun fig1 ()
+  (progn
+    (figtop)
+    (lnhead)
+    (lnblank)
+    (lnblank)
+    (figbot)))
+
+(defun fig2 ()
+  (progn
+    (figtop)
+    (lnhead)
+    (lnbody)
+    (lnblank)
+    (figbot)))
+
+(defun fig3 ()
+  (progn
+    (figtop)
+    (lnhead)
+    (lnarm1)
+    (lnblank)
+    (figbot)))
+
+(defun fig4 ()
+  (progn
+    (figtop)
+    (lnhead)
+    (lnarm2)
+    (lnblank)
+    (figbot)))
+
+(defun fig5 ()
+  (progn
+    (figtop)
+    (lnhead)
+    (lnarm2)
+    (lnleg1)
+    (figbot)))
+
+(defun fig6 ()
+  (progn
+    (figtop)
+    (lnhead)
+    (lnarm2)
+    (lnleg2)
+    (figbot)))
+
+; --- picks the stage based on current errors ---
+(defun figure ()
+  (cond
+    ((= errors 0) (fig0))
+    ((= errors 1) (fig1))
+    ((= errors 2) (fig2))
+    ((= errors 3) (fig3))
+    ((= errors 4) (fig4))
+    ((= errors 5) (fig5))
+    (t (fig6))))
+
+; --- shows the word with dashes where missing ---
+(defun showf (wrd rev)
+  (if (atom wrd)
+      nil
+      (progn
+        (cond
+          ((= (car rev) 1) (display (car wrd)))
+          (t (display "_")))
+        (display " ")
+        (showf (cdr wrd) (cdr rev)))))
+
+(defun show ()
+  (progn
+    (showf word reveal)
+    (newline)))
+
+; --- marks the positions where the letter appears ---
+(defun mark (letr wrd rev)
+  (if (atom wrd)
+      nil
+      (cond
+        ((equal (car wrd) letr)
+         (cons 1 (mark letr (cdr wrd) (cdr rev))))
+        (t
+         (cons (car rev) (mark letr (cdr wrd) (cdr rev)))))))
+
+; --- does the word have this letter? ---
+(defun hit (letr)
+  (has letr word))
+
+; --- are all letters revealed already? ---
+(defun won2 (rev)
+  (if (atom rev)
+      t
+      (cond
+        ((= (car rev) 0) nil)
+        (t (won2 (cdr rev))))))
+
+(defun won ()
+  (won2 reveal))
+
+; --- reached the max number of errors? ---
+(defun lost ()
+  (>= errors 6))
+
+; --- messages, each one small ---
+(defun msgused ()
+  (progn
+    (display "You already tried that letter")
+    (newline)))
+
+(defun msgwin ()
+  (progn
+    (show)
+    (display "YOU WIN!")
+    (newline)))
+
+(defun msglost ()
+  (progn
+    (figure)
+    (show)
+    (display "YOU LOST. It was: ")
+    (display word)
+    (newline)))
+
+(defun msgturn ()
+  (progn
+    (figure)
+    (show)
+    (display "Errors: ")
+    (display errors)
+    (display "/6")
+    (newline)))
+
+; --- decides which message to show after the move ---
+(defun result ()
+  (cond
+    ((won) (msgwin))
+    ((lost) (msglost))
+    (t (msgturn))))
+
+(defun hit2 (letr)
+  (progn
+    (define reveal (mark letr word reveal))
+    (result)))
+
+(defun miss ()
+  (progn
+    (define errors (+ errors 1))
+    (result)))
+
+(defun letter3 (letr)
+  (cond
+    ((hit letr) (hit2 letr))
+    (t (miss))))
+
+(defun letter2 (letr)
+  (progn
+    (define used (cons letr used))
+    (letter3 letr)))
+
+; --- main function: propose a letter ---
+(defun letter (letr)
+  (cond
+    ((has letr used) (msgused))
+    (t (letter2 letr))))
+
+; --- welcome screen ---
+(defun title ()
+  (progn
+    (display "*********************")
+    (newline)
+    (display "*      HANGMAN      *")
+    (newline)
+    (display "*********************")
+    (newline)))
+
+(defun help1 ()
+  (progn
+    (display "Propose a letter: (letter X)")
+    (newline)
+    (display "  ex: (letter a)  -- no quote")
+    (newline)
+    (display "  the machine picks the word")
+    (newline)
+    (display "Maximum 6 errors")
+    (newline)))
+
+(defun help2 ()
+  (progn
+    (display "New word: (reset)")
+    (newline)
+    (display "(secret '(s i n c l a i r))")
+    (newline)
+    (display "(choose 'cat)")
+    (newline)
+    (display "check the manual")
+    (newline)))
+
+; --- picks the next word in the rotation on its own ---
+(defun newgame ()
+  (progn
+    (define rndcnt (+ rndcnt 1))
+    (rand2 (mod rndcnt 12))))
+
+; --- start over with a different word ---
+(defun reset ()
+  (progn
+    (newgame)
+    (hint)
+    (figure)
+    (show)))
+
+(defun welcome ()
+  (progn
+    (cls)
+    (newgame)
+    (title)
+    (help1)
+    (help2)
+    (hint)
+    (figure)
+    (show)))
+
+(welcome)
